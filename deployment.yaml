@@ -1,0 +1,97 @@
+version: '3'
+
+services:
+  authenticationDB1:
+    image: mysql
+    environment:
+      - DATABASE_URL=authenticationDB1
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
+      timeout: 10s
+      retries: 10
+    volumes:
+      - authenticationdata:/var/lib/mysql
+    networks:
+      - authenticationnet
+  authenticationDBMig:
+    image: authenticationdbmig
+    environment:
+      - DATABASE_URL=authenticationDB1
+    depends_on:
+      - authenticationDB1
+    networks:
+      - authenticationnet
+  authentication:
+    image: authentication
+    environment:
+      - DATABASE_URL=authenticationDB1
+    depends_on:
+      - authenticationDBMig
+    ports:
+      - 5002:5002
+    networks:
+      - authenticationnet
+
+  electionsDB7:
+    image: mysql
+    environment:
+      - DATABASE_URL=electionsDB7
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+    volumes:
+      - electiondata:/var/lib/mysql
+    networks:
+      - electionnet
+  electionDBMig:
+    image: electiondbmig
+    environment:
+      - DATABASE_URL=electionsDB7
+    depends_on:
+      - electionsDB7
+    networks:
+      - electionnet
+  administrator:
+    image: administrator
+    environment:
+      - DATABASE_URL=electionsDB7
+    depends_on:
+      - electionDBMig
+    ports:
+      - 5003:5003
+    networks:
+      - electionnet
+
+
+  voting_station:
+    image: voting_station
+    environment:
+      - REDIS_HOST=redis
+      - TZ=Europe/Belgrade
+    ports:
+      - 5001:5001
+    networks:
+      - redisnet
+  daemon:
+    image: daemon
+    environment:
+      - REDIS_HOST=redis
+      - DATABASE_URL=electionsDB7
+      - TZ=Europe/Belgrade
+    depends_on:
+      - electionsDB7
+    networks:
+      - electionnet
+      - redisnet
+
+volumes:
+  authenticationdata:
+  electiondata:
+
+networks:
+  authenticationnet:
+  redisnet:
+  electionnet:

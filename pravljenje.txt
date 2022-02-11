@@ -1,0 +1,23 @@
+1. pravljenje managera i dva workera
+2. globalno docker image ls (lista napravljenih images)
+3. dodavanje taga sa ip adresom
+4. u manager pravljenje registry i donfiguracija dockera
+    1.("insecure-registries": ["192.168.193.12:5000"])
+    2.(u manageru : sudo su
+                    cd /var/lib/boot2docker
+                    vi profile
+                    u args dodajemo --insecure-registry 192.168.193.12:5000
+       )
+    3.globalno docker-machine restart manager
+5. u manager docker service create --name registry --replicas 1 --publish 5000:5000 registry:2
+6. globalno docekr push ime sa sve adresom
+7. u manager docekr pull ime sa sve adresom
+8. u manager docker tag imeSaAdreesom ime
+9. u manager pravljenje stack.yaml (touch stack.yaml, vi stack.yaml)
+10. u manager docker stack deploy --compose-file stack.yaml application_stack
+11. docker service ls provera
+12. docker service ps imeService
+
+PARAMETRI TESTA
+
+--type all --administrator-address http://192.168.193.12:5003 --jwt-secret "JWT_SECRET_KEY" --roles-field "roles" --administrator-role "1" --user-role "2" --authentication-address http://192.168.193.12:5002 --with-authentication  --station-address http://192.168.193.12:5001
